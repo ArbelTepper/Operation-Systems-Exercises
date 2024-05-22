@@ -1,6 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-varify_num_of_args() {
+# Script to Split PGN Files into Individual Game Files
+# It verifies the number of arguments, checks if the source file exists, ensures the destination directory 
+# exists (creating it if necessary), and performs the splitting operation.
+
+
+# Function to verify the number of arguments provided to the script
+# Input: $1 - Number of arguments passed to the script
+# Output: None
+# Exit Code: 1 if the number of arguments is not equal to 2
+
+function varify_num_of_args() {
 
     num=$1
 
@@ -11,7 +21,12 @@ varify_num_of_args() {
 
 }
 
-varify_source_file_exist() {
+# Function to verify that the source file exists
+# Input: $1 - The full path of the source file
+# Output: None
+# Exit Code: 1 if the file does not exist
+
+function varify_source_file_exist() {
     # SOURCE is given the full path of a file.
 
     SOURCE=$1
@@ -23,7 +38,13 @@ varify_source_file_exist() {
 
 }
 
-check_directory_exist() {
+
+# Function to check if the destination directory exists, and create it if it does not
+# Input: $2 - The path of the destination directory
+# Output: Creates the directory if it does not exist and prints a message
+# Exit Code: None
+
+function check_directory_exist() {
 
     DIRECTORY=$2
 
@@ -33,8 +54,11 @@ check_directory_exist() {
     fi
 
 }
-
-split_pgn() {
+# Function to split the PGN file into individual game files
+# Input: $1 - The full path of the source PGN file
+#        $2 - The path of the destination directory
+# Output: Creates individual game files in the destination directory and prints messages for each file saved
+function split_pgn() {
 
     SOURCE=$1
     DIRECTORY=$2
@@ -55,11 +79,13 @@ split_pgn() {
     done
 }
 
+
+# Main Script
+
 args_num="$#"
 args="$@"
 
 varify_num_of_args $args_num
 varify_source_file_exist $args
 check_directory_exist $args
-
 split_pgn $args
