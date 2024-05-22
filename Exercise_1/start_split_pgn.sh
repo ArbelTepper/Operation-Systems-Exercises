@@ -5,6 +5,7 @@ echo "Option 1: no arguments"
 echo "Option 2: one argument"
 echo "Option 3: two arguments - file does not exist"
 echo "Option 4: two arguments - no problems"
+echo "Option 5: test of grep and machamism with a new folder"
 
 read choice
 
@@ -13,9 +14,11 @@ if [ $choice -eq 1 ]; then
 elif [ $choice -eq 2 ]; then
     ./split_pgn.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/pgns/capmemel24.pgn
 elif [ $choice -eq 3 ]; then
-    ./split_pgn.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/pgns/capmemel24-1.pgn new_folder
+    ./split_pgn.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/pgns/capmemel24-1.pgn test_folder
 elif [ $choice -eq 4 ]; then
-    ./split_pgn.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/pgns/capmemel24.pgn new_folder
+    ./split_pgn.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/pgns/capmemel24.pgn test_folder
+elif [ $choice -eq 5 ]; then
+    ./split_pgn.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/pgns/capmemel24.pgn test_folder
 else
     echo "Invalid choice."
 fi

@@ -35,38 +35,31 @@ check_directory_exist() {
 }
 
 split_pgn() {
+
     SOURCE=$1
     DIRECTORY=$2
-    counter=$1
-    SPLIT=$0
-    current_game=""
+    COUNTER=1
+
+    matches=()
 
     while IFS= read -r line; do
-    # Define the output file name
-    output_file="$SOURCE_$counter.pgn"
-    
-    stats = read -r -d '' data
-    echo "$stats"
+        matches+=("$line")
+    done < <(grep "Event" $SOURCE) # Change regex to match the GPN format of a single game.
 
-
-    # Write the line to the output file
-    
-    #echo "$line" > "$output_file"
-    
-    # Increment the counter
-    counter=$((counter + 1))
-done < "$input_file"
-
+    # Print all matches
+    for match in "${matches[@]}"; do
+        echo $match > $DIRECTORY/$SOURCE_$COUNTER.pgn
+        echo "Saved game to $DIRECTORY/$SOURCE_$COUNTER.pgn"
+        # Increment the counter
+        COUNTER=$((COUNTER + 1))
+    done
 }
-
 
 args_num="$#"
 args="$@"
-echo "the args are $args"
-
 
 varify_num_of_args $args_num
 varify_source_file_exist $args
 check_directory_exist $args
 
-#split_pgn
+split_pgn $args
