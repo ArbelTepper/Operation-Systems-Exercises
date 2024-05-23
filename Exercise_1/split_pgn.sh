@@ -64,19 +64,21 @@ function split_pgn() {
     DIRECTORY=$2
     COUNTER=1
 
-    matches=()
+    file_name=$(basename -- "$SOURCE")
+    file_name="${file_name%.*}"
 
-    while IFS= read -r line; do
-        matches+=("$line")
-    done < <(grep "Event" $SOURCE) # Change regex to match the GPN format of a single game.
-
-    # Print all matches
+    # Use grep with regular expressions to match each game in the PGN file
+    mapfile -d '' matches < <(grep -Pzo '\[Event\b\s+(?:(?!\[Event\b)[\s\S])*' "$SOURCE")
+    
     for match in "${matches[@]}"; do
-        echo $match > $DIRECTORY/$SOURCE_$COUNTER.pgn
-        echo "Saved game to $DIRECTORY/$SOURCE_$COUNTER.pgn"
+        
+        echo -e "$match\n" > $DIRECTORY/temp.pgn
+        head -n -1 "${DIRECTORY}/temp.pgn" > "temp.pgn" && mv "temp.pgn" "${DIRECTORY}/${file_name}_${COUNTER}.pgn"
+        echo "Saved game to ${DIRECTORY}/${file_name}_${COUNTER}.pgn"
         # Increment the counter
         COUNTER=$((COUNTER + 1))
     done
+    rm $DIRECTORY/temp.pgn
 }
 
 
