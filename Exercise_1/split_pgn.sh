@@ -73,7 +73,7 @@ function split_pgn() {
     for match in "${matches[@]}"; do
         
         echo -e "$match\n" > $DIRECTORY/temp.pgn
-        head -n -1 "${DIRECTORY}/temp.pgn" > "temp.pgn" && mv "temp.pgn" "${DIRECTORY}/${file_name}_${COUNTER}.pgn"
+        head -n -2 "${DIRECTORY}/temp.pgn" > "temp.pgn" && mv "temp.pgn" "${DIRECTORY}/${file_name}_${COUNTER}.pgn"
         echo "Saved game to ${DIRECTORY}/${file_name}_${COUNTER}.pgn"
         # Increment the counter
         COUNTER=$((COUNTER + 1))
