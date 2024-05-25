@@ -9,6 +9,7 @@
 #define COMMAND_NUMBER 100
 #define COMMAND_LENGTH 100
 #define DIRECTORY_LENGTH 1024
+#define PATH_LENGTH 1024
 
 char history_array [COMMAND_NUMBER][COMMAND_LENGTH];
 char (*end_ptr)[COMMAND_LENGTH] = history_array + (COMMAND_NUMBER * COMMAND_LENGTH); // Pointer to the end of the history array.
@@ -16,25 +17,28 @@ char (*command_ptr)[COMMAND_LENGTH] = history_array; // Pointer to the current c
 
 int main(int argc, char *argv[]) {
     //change path file to include all the argv's
-    char *currentPath = getenv("PATH");
-    if (currentPath == NULL) {
+    char *originalPath = getenv("PATH");
+    if (originalPath == NULL) {
         perror("getenv failed");
         return 1;
     }
     // Backing up the old path, in case it is not reset when the program ends.
     //char *oldPath;
     //strcpy(oldPath, currentPath);
-    char newPath[1024];
+    char *newPath = originalPath;
     // Concatenating the old path with the new path variables passed through the command line arguments.
+
     for (int i = 1; i < argc; i++) // Start at 1 to skip the program name, which is always at argv[0].
     {
-        snprintf(newPath, sizeof(newPath), "%s:%s", currentPath, argv[i]);
+        snprintf(newPath, sizeof(newPath), "%s:%s", newPath, argv[i]);
     }
     int set_env_status = setenv("PATH", newPath, 1);
     if (set_env_status == -1) {
         perror("setenv failed");
         return 1;
     }
+    
+    
 
     // Main loop
     while (1) {
@@ -101,7 +105,7 @@ int main(int argc, char *argv[]) {
                 }
                 else if (pid == 0) {
                     // Child process
-                    execvp(command, arguments);
+                    execvp(command, arguments); // <--- This is where the error is
                     // If execvp returns, then it must have failed.
                     char *error_msg = strcat(command, " failed");
                     perror(error_msg);
