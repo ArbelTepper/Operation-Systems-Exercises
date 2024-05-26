@@ -37,8 +37,6 @@ int main(int argc, char *argv[]) {
         perror("setenv failed");
         return 1;
     }
-    
-    
 
     // Main loop
     while (1) {
@@ -75,7 +73,7 @@ int main(int argc, char *argv[]) {
             getcwd(current_directory, DIRECTORY_LENGTH);
             if (current_directory == NULL) {
                 perror("pwd failed");
-                return 1;
+                exit (1);
             }
             printf("%s\n", current_directory);
         } 
@@ -85,6 +83,7 @@ int main(int argc, char *argv[]) {
             char *command = token;
             char *arguments[COMMAND_LENGTH];
             int i = 0;
+
             while (token != NULL) {
                 arguments[i] = token;
                 token = strtok(NULL, " ");
@@ -95,21 +94,35 @@ int main(int argc, char *argv[]) {
             if (strcmp(command, "cd") == 0) {
                 if (chdir(arguments[1]) != 0) {
                     perror("cd failed");
-                    return 1;
+                    exit (1);
                 }
             } else {
                 pid_t pid = fork();
                 if (pid == -1) {
                     perror("fork failed");
-                    return 1;
+                    exit (1);
                 }
                 else if (pid == 0) {
                     // Child process
-                    execvp(command, arguments); // <--- This is where the error is
-                    // If execvp returns, then it must have failed.
+                    
+                    printf("command: %s\n", command);
+                    printf("arguments: %s\n", arguments[1]);
                     char *error_msg = strcat(command, " failed");
-                    perror(error_msg);
-                    return 1;
+                    if (command[0] == '/') {
+                        // If the command is an absolute path, then execute it directly.
+                        
+                        execv(command, arguments);
+                        // If execv returns, then it must have failed.
+                        perror(error_msg);
+                        exit (1);
+                    }
+                    else {
+                        // Its a relative path, so search for the command in the PATH.
+                        execvp(command, arguments);
+                        // If execvp returns, then it must have failed.
+                        perror(error_msg);
+                        exit (1);
+                    }
                 } 
                 else {
                     // Parent process
