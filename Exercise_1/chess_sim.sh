@@ -71,6 +71,9 @@ function update_board {
   dst_col=${element:2:1} # Get the third character
   dst_row=${element:3:1} # Get the fourth character
 
+  echo
+  echo "Move: $element"
+
   # Convert the source column to a numeric value
   case $src_col in
     a) src_col=1;;
@@ -93,11 +96,31 @@ function update_board {
     g) dst_col=7;;
     h) dst_col=8;;
   esac
+  # Convert the source row i to its inverse (9-i) to match the board
+  case $src_row in
+    1) src_row=$((9-1));;
+    2) src_row=$((9-2));;
+    3) src_row=$((9-3));;
+    4) src_row=$((9-4));;
+    5) src_row=$((9-5));;
+    6) src_row=$((9-6));;
+    7) src_row=$((9-7));;
+    8) src_row=$((9-8));;
+  esac
+  # Convert the destination row i to its inverse (9-i) to match the board
+  case $dst_row in
+    1) dst_row=$((9-1));;
+    2) dst_row=$((9-2));;
+    3) dst_row=$((9-3));;
+    4) dst_row=$((9-4));;
+    5) dst_row=$((9-5));;
+    6) dst_row=$((9-6));;
+    7) dst_row=$((9-7));;
+    8) dst_row=$((9-8));;
+  esac
 
   # Copy the previous board to the latest board and then make the change on that.
   copy_board $((latest_move - 1)) $latest_move
-
-  print_board $latest_move 
 
   # Update the board with the move
   game_moves[$latest_move,$dst_row,$dst_col]=${game_moves[$latest_move,$src_row,$src_col]}
@@ -125,6 +148,7 @@ done < "$1"
 
 # Parse the moves from the PGN file to UCI format
 uci_moves=$(python3 "parse_moves.py" "$pgn_moves")
+uci_moves > uci_moves_1.txt
 
 # Split the UCI moves string into an array
 read -a moves_history <<< "$uci_moves"
@@ -149,14 +173,14 @@ while [[ $key != "q" ]]; do
     # Check the key pressed and update the current move accordingly
     if [[ $key == "d" ]]; then
         if [[ $current_move -lt $total_moves ]]; then
-            current_move=$((current_move+1))
             # Check if the latest move is already filled
-            if [[ "${game_moves[$current_move,1,1]}" == "" ]]; then
+            if [[ "${game_moves[$((current_move + 1)),1,1]}" == "" ]]; then
               latest_move=$((latest_move+1))
               echo "Latest move: $latest_move"
               # Update the board with the latest move
               update_board $current_move
             fi
+            current_move=$((current_move+1))
         else
             echo "No more moves available."
         fi
@@ -171,7 +195,9 @@ while [[ $key != "q" ]]; do
     elif [[ $key == "w" ]]; then
         current_move=0
     elif [[ $key == "s" ]]; then
-        current_move=${#moves_history[@]}
+        current_move=$total_moves
+
+        # TODO: Update the board with the latest move
     fi
 done
 
