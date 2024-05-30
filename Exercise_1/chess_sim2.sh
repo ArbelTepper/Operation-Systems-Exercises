@@ -124,24 +124,29 @@ function update_board {
   copy_board $((latest_move - 1)) $latest_move
 
   # Update the board with the move
+    game_moves[$latest_move,$dst_row,$dst_col]=${game_moves[$latest_move,$src_row,$src_col]}
+    game_moves[$latest_move,$src_row,$src_col]="."
 
+    # Checking for a castling move
+
+    # Check if the move is a castling move
     if [[ $element == "e1g1" ]]; then
-        continue
+        echo "Castling move: $element move: $latest_move"
+        game_moves[$latest_move,$src_row,$((dst_col-1))]="R";
+        game_moves[$latest_move,$src_row,$((dst_col+1))]="."
     elif [[ $element == "e1c1" ]]; then
-        continue
+        echo "Castling move: $element move: $latest_move"
+        game_moves[$latest_move,$src_row,$((dst_col+1))]="R";
+        game_moves[$latest_move,$src_row,$((dst_col-2))]="."
     elif [[ $element == "e8g8" ]]; then
-        continue
+        echo "Castling move: $element move: $latest_move"
+        game_moves[$latest_move,$src_row,$((dst_col-1))]="r";
+        game_moves[$latest_move,$src_row,$((dst_col+1))]="."
     elif [[ $element == "e8c8" ]]; then
-        continue
-    #else
-        # Add your code here for the else case
-        # Your code goes here
+        game_moves[$latest_move,$src_row,$((dst_col+1))]="r";
+        game_moves[$latest_move,$src_row,$((dst_col-2))]="."
     fi
-
-  game_moves[$latest_move,$dst_row,$dst_col]=${game_moves[$latest_move,$src_row,$src_col]}
-  game_moves[$latest_move,$src_row,$src_col]="."
-
-  # Checking for a pawn promotion
+    # Checking for a pawn promotion
    if [[ ${#element} -eq 5 ]]; then
         if [[ $dst_row -eq 1 ]]; then
             game_moves[$latest_move,$dst_row,$dst_col]=${promotion^^}
