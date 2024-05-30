@@ -71,8 +71,8 @@ function update_board {
   dst_col=${element:2:1} # Get the third character
   dst_row=${element:3:1} # Get the fourth character
 
-  echo
-  echo "Move: $element"
+    #echo
+    #echo "Move: $element"
 
   # Convert the source column to a numeric value
   case $src_col in
@@ -119,12 +119,36 @@ function update_board {
     8) dst_row=$((9-8));;
   esac
 
+
   # Copy the previous board to the latest board and then make the change on that.
   copy_board $((latest_move - 1)) $latest_move
 
   # Update the board with the move
+
+    if [[ $element == "e1g1" ]]; then
+        continue
+    elif [[ $element == "e1c1" ]]; then
+        continue
+    elif [[ $element == "e8g8" ]]; then
+        continue
+    elif [[ $element == "e8c8" ]]; then
+        continue
+    #else
+        # Add your code here for the else case
+        # Your code goes here
+    fi
+
   game_moves[$latest_move,$dst_row,$dst_col]=${game_moves[$latest_move,$src_row,$src_col]}
   game_moves[$latest_move,$src_row,$src_col]="."
+
+  # Checking for a pawn promotion
+   if [[ ${#element} -eq 5 ]]; then
+        if [[ $dst_row -eq 1 ]]; then
+            game_moves[$latest_move,$dst_row,$dst_col]=${promotion^^}
+        elif [[ $dst_row -eq 8 ]]; then
+            game_moves[$latest_move,$dst_row,$dst_col]=$promotion
+        fi
+    fi
 }
 
 metadata=""
@@ -148,7 +172,8 @@ done < "$1"
 
 # Parse the moves from the PGN file to UCI format
 uci_moves=$(python3 "parse_moves.py" "$pgn_moves")
-uci_moves > uci_moves_1.txt
+
+#echo "$uci_moves" > limon_uci.txt
 
 # Split the UCI moves string into an array
 read -a moves_history <<< "$uci_moves"
