@@ -207,7 +207,7 @@ while [[ $key != "q" ]]; do
         continue
     fi
 
-    if [[ $no_moves_left = "true" && ($key = "a" || $key = "w") ]]; then
+    if [[ $no_moves_left = "true" && ($key = "a" || $key = "w" || $key = "s") ]]; then
       no_moves_left="false"
     fi
 
@@ -217,7 +217,6 @@ while [[ $key != "q" ]]; do
             # Check if the latest move is already filled
             if [[ "${game_moves[$((current_move + 1)),1,1]}" == "" ]]; then
               latest_move=$((latest_move+1))
-              echo "Latest move: $latest_move"
               # Update the board with the latest move
               update_board $current_move
             fi
