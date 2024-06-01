@@ -26,8 +26,8 @@ function create_board {
 
   # Set the row numbers
   for ((i=1; i<=8; i++)); do
-    game_moves[0,$i,0]=$[9-i]
-    game_moves[0,$i,9]=$[9-i]
+    game_moves[0,$i,0]="$((9-i))"
+    game_moves[0,$i,9]=" $((9-i))"
   done
 
   # Set the soldiers
@@ -48,7 +48,11 @@ function print_board {
   echo -n "  a b c d e f g h"
   for ((i=0; i<=8; i++)); do
     for ((j=0; j<=10; j++)); do
-      echo -n "${game_moves[$1,$i,$j]} " # Print the value of the current board at position i,j
+      if [[ $j -eq 9 ]]; then
+        echo -n "${game_moves[$1,$i,$j]}"
+      else
+        echo -n "${game_moves[$1,$i,$j]} " # Print the value of the current board at position i,j
+      fi
     done
     echo # Print a new line
   done
@@ -129,15 +133,12 @@ function update_board {
 
     # Checking for a castling move
     if [[ $element == "e1g1" ]]; then
-        echo "Castling move: $element move: $latest_move"
         game_moves[$latest_move,$src_row,$((dst_col-1))]="R";
         game_moves[$latest_move,$src_row,$((dst_col+1))]="."
     elif [[ $element == "e1c1" ]]; then
-        echo "Castling move: $element move: $latest_move"
         game_moves[$latest_move,$src_row,$((dst_col+1))]="R";
         game_moves[$latest_move,$src_row,$((dst_col-2))]="."
     elif [[ $element == "e8g8" ]]; then
-        echo "Castling move: $element move: $latest_move"
         game_moves[$latest_move,$src_row,$((dst_col-1))]="r";
         game_moves[$latest_move,$src_row,$((dst_col+1))]="."
     elif [[ $element == "e8c8" ]]; then
@@ -188,16 +189,28 @@ echo "Metadata from PGN file:"$'\n'"$metadata"
 start_game
 
 key=""
+no_moves_left="false"
 while [[ $key != "q" ]]; do
     # Print the current move number nad ask the user for input
-    echo "Move $current_move/${total_moves}"
-    print_board $current_move
-    read -p "Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: " key
+    # if the previously pressed key was invalid.
+    if [[ ($key = "a" || $key = "d" || $key = "s" || $key = "w" || $key = "") && $no_moves_left = "false" ]]; then
+        echo "Move $current_move/${total_moves}"
+        print_board $current_move
+    fi
+
+    echo "Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: "
+    read -n 1 key
+    #read -n 1 -p "Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: " key
 
     if [[ $key != "a" && $key != "d" && $key != "s" && $key != "w" && $key != "q" ]]; then
         echo "Invalid key pressed: $key"
         continue
     fi
+
+    if [[ $no_moves_left = "true" && ($key = "a" || $key = "w") ]]; then
+      no_moves_left="false"
+    fi
+
     # Check the key pressed and update the current move accordingly
     if [[ $key == "d" ]]; then
         if [[ $current_move -lt $total_moves ]]; then
@@ -211,6 +224,7 @@ while [[ $key != "q" ]]; do
             current_move=$((current_move+1))
         else
             echo "No more moves available."
+            no_moves_left=true
         fi
     elif [[ $key == "a" ]]; then
         if [[ $current_move -gt 0 ]]; then
@@ -238,3 +252,4 @@ while [[ $key != "q" ]]; do
 done
 
 echo "Exiting."
+echo "End of game."
