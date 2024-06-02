@@ -47,11 +47,13 @@ function print_board {
   # Print the board at the "current_move"th element of game_moves
   echo -n "  a b c d e f g h"
   for ((i=0; i<=8; i++)); do
-    for ((j=0; j<=10; j++)); do
-      if [[ $j -eq 9 ]]; then
-        echo -n "${game_moves[$1,$i,$j]}"
-      else
-        echo -n "${game_moves[$1,$i,$j]} " # Print the value of the current board at position i,j
+    for ((j=0; j<=9; j++)); do
+      if [[ -n "${game_moves["$1,$i,$j"]}" ]]; then  # Check if the element is not empty
+        if [[ $j -eq 9 ]]; then
+          echo -n "${game_moves["$1,$i,$j"]}"
+        else
+          echo -n "${game_moves["$1,$i,$j"]} " # Print the value of the current board at position i,j
+        fi
       fi
     done
     echo # Print a new line
