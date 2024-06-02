@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#./chess_sim.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/Part_1/splited_pgn/capmemel24_1.pgn
+#./chess_sim.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/Part_1/splited_pgn/capmemel24_6.pgn
 
 
 input="/home/arbel/Operation-Systems-Exercises/Exercise_1/Part_1/splited_pgn/capmemel24_7.pgn"

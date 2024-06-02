@@ -128,7 +128,9 @@ function update_board {
   copy_board $((latest_move - 1)) $latest_move
 
   # Update the board with the move
+    #echo "Source cell content: ${game_moves[$latest_move,$src_row,$src_col]}"
     game_moves[$latest_move,$dst_row,$dst_col]=${game_moves[$latest_move,$src_row,$src_col]}
+    #echo "Destination cell content: ${game_moves[$latest_move,$dst_row,$dst_col]}"
     game_moves[$latest_move,$src_row,$src_col]="."
 
     # Checking for a castling move
@@ -177,7 +179,7 @@ done < "$1"
 # Parse the moves from the PGN file to UCI format
 uci_moves=$(python3 "parse_moves.py" "$pgn_moves")
 
-#echo "$uci_moves" > limon_uci.txt
+#echo "$uci_moves" > uci_6.txt
 
 # Split the UCI moves string into an array
 read -a moves_history <<< "$uci_moves"
@@ -242,7 +244,8 @@ while [[ $key != "q" ]]; do
                 if [[ "${game_moves[$((current_move + 1)),1,1]}" == "" ]]; then
                 latest_move=$((latest_move+1))
                 # Update the board with the latest move
-                update_board $((current_move-1))
+                update_board $((current_move))
+                # WAS: update_board $((current_move-1))
                 fi
             fi
         done
