@@ -27,7 +27,7 @@ function create_board {
   # Set the row numbers
   for ((i=1; i<=8; i++)); do
     game_moves[0,$i,0]="$((9-i))"
-    game_moves[0,$i,9]=" $((9-i))"
+    game_moves[0,$i,9]="$((9-i))"
   done
 
   # Set the soldiers
@@ -202,9 +202,8 @@ while [[ $key != "q" ]]; do
         print_board $current_move
     fi
 
-    echo "Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: "
-    read -n 1 key
-    #read -n 1 -p "Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit: " key
+    echo "Press 'd' to move forward, 'a' to move back, 'w' to go to the start, 's' to go to the end, 'q' to quit:"
+    read key
 
     if [[ $key != "a" && $key != "d" && $key != "s" && $key != "w" && $key != "q" ]]; then
         echo "Invalid key pressed: $key"
