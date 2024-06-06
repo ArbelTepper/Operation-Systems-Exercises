@@ -136,19 +136,19 @@ function update_board {
     game_moves[$latest_move,$src_row,$src_col]="."
 
     # Checking for a castling move
-    if [[ $element == "e1g1" ]]; then
-        game_moves[$latest_move,$src_row,$((dst_col-1))]="R";
-        game_moves[$latest_move,$src_row,$((dst_col+1))]="."
-    elif [[ $element == "e1c1" ]]; then
-        game_moves[$latest_move,$src_row,$((dst_col+1))]="R";
-        game_moves[$latest_move,$src_row,$((dst_col-2))]="."
-    elif [[ $element == "e8g8" ]]; then
-        game_moves[$latest_move,$src_row,$((dst_col-1))]="r";
-        game_moves[$latest_move,$src_row,$((dst_col+1))]="."
-    elif [[ $element == "e8c8" ]]; then
-        game_moves[$latest_move,$src_row,$((dst_col+1))]="r";
-        game_moves[$latest_move,$src_row,$((dst_col-2))]="."
-    fi
+    #if [[ $element == "e1g1" ]]; then
+    #    game_moves[$latest_move,$src_row,$((dst_col-1))]="R";
+    #    game_moves[$latest_move,$src_row,$((dst_col+1))]="."
+    #elif [[ $element == "e1c1" ]]; then
+    #    game_moves[$latest_move,$src_row,$((dst_col+1))]="R";
+    #    game_moves[$latest_move,$src_row,$((dst_col-2))]="."
+    #elif [[ $element == "e8g8" ]]; then
+    #    game_moves[$latest_move,$src_row,$((dst_col-1))]="r";
+    #    game_moves[$latest_move,$src_row,$((dst_col+1))]="."
+    #elif [[ $element == "e8c8" ]]; then
+    #    game_moves[$latest_move,$src_row,$((dst_col+1))]="r";
+    #    game_moves[$latest_move,$src_row,$((dst_col-2))]="."
+    #fi
     # Checking for a pawn promotion
    if [[ ${#element} -eq 5 ]]; then
         if [[ $dst_row -eq 1 ]]; then
