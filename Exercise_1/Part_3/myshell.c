@@ -9,7 +9,7 @@
 #define COMMAND_NUMBER 100
 #define COMMAND_LENGTH 100
 #define DIRECTORY_LENGTH 1024
-#define PATH_LENGTH 1024
+#define PATH_LENGTH 4096
 
 char history_array [COMMAND_NUMBER][COMMAND_LENGTH];
 char (*end_ptr)[COMMAND_LENGTH] = history_array + (COMMAND_NUMBER * COMMAND_LENGTH); // Pointer to the end of the history array.
@@ -25,18 +25,20 @@ int main(int argc, char *argv[]) {
     // Backing up the old path, in case it is not reset when the program ends.
     //char *oldPath;
     //strcpy(oldPath, currentPath);
-    char *newPath = originalPath;
-    // Concatenating the old path with the new path variables passed through the command line arguments.
+    char newPath[PATH_LENGTH];
+    snprintf(newPath, sizeof(newPath), "%s", originalPath);
 
-    for (int i = 1; i < argc; i++) // Start at 1 to skip the program name, which is always at argv[0].
-    {
-        snprintf(newPath, sizeof(newPath), "%s:%s", newPath, argv[i]);
+    for (int i = 1; i < argc; i++) { // Start at 1 to skip the program name
+        strncat(newPath, ":", sizeof(newPath) - strlen(newPath) - 1);
+        strncat(newPath, argv[i], sizeof(newPath) - strlen(newPath) - 1);
     }
+
     int set_env_status = setenv("PATH", newPath, 1);
     if (set_env_status == -1) {
         perror("setenv failed");
         return 1;
     }
+    char *cmd = malloc(COMMAND_LENGTH + 1);
 
     // Main loop
     while (1) {
@@ -65,6 +67,7 @@ int main(int argc, char *argv[]) {
         else if (strcmp(command, "exit") == 0) {
             // Reset the path to the old path before exiting the program.
             //setenv("PATH", oldPath, 1);
+            free(cmd);
             exit(0);
         }
     
@@ -80,7 +83,7 @@ int main(int argc, char *argv[]) {
         else {
             // Split the command into the command and the arguments.
             char *token = strtok(command, " ");
-            char *command = token;
+            strcpy(cmd, token);
             char *arguments[COMMAND_LENGTH];
             int i = 0;
 
@@ -104,13 +107,10 @@ int main(int argc, char *argv[]) {
                 }
                 else if (pid == 0) {
                     // Child process
-                    
-                    printf("command: %s\n", command);
-                    printf("arguments: %s\n", arguments[1]);
-                    char *error_msg = strcat(command, " failed");
-                    if (command[0] == '/') {
+
+                    char *error_msg = strcat(cmd, " failed");
+                    if (cmd[0] == '/') {
                         // If the command is an absolute path, then execute it directly.
-                        
                         execv(command, arguments);
                         // If execv returns, then it must have failed.
                         perror(error_msg);
