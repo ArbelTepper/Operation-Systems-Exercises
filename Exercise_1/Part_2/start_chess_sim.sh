@@ -2,10 +2,11 @@
 
 #./chess_sim.sh /home/arbel/Operation-Systems-Exercises/Exercise_1/Part_1/splited_pgn/capmemel24_6.pgn
 
+#test 6
+input="/home/arbel/Operation-Systems-Exercises/Exercise_1/tester/filtered_games/Alburt/Alburt_563.pgn"
 
-input="/home/arbel/Operation-Systems-Exercises/Exercise_1/Part_1/splited_pgn/capmemel24_7.pgn"
-moves="dwwvcvdvwccddwxxdcxvvxxwxdwdsvdswvvsssxzxxvzxcwcdq"
+moves="ddamawshdzfawiwadawdsdwsddwaadwwscladaq"
 
 #echo "$moves" | ./chess_sim.sh "$input" > test_1_output.txt 2>&1
 
-echo "$moves" | ./chess_sim.sh "$input" > test_7_output.txt 2>&1
+echo "$moves" | ./chess_sim.sh "$input" > new_test_6.txt 2>&1
