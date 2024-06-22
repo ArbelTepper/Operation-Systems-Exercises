@@ -15,40 +15,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Write to the file
-    const char *msg = "Hello, World!\n";
-    ssize_t bytes_written = buffered_write(bf, msg, strlen(msg));
-    if (bytes_written == -1) {
-        perror("buffered_write");
-        return 1;
-    }
-/*
     // Read from the file
-        char buf[4096];
-        ssize_t bytes_read = buffered_read(bf, buf, sizeof(buf));
-*/
-    
-    // Write to the file
-    const char *msg2 = "This should be first || ";
-    bytes_written = buffered_write(bf, msg2, strlen(msg2));
-    if (bytes_written == -1) {
-        perror("buffered_write");
-        return 1;
-    }
+    char buf[4096*2];
+    ssize_t bytes_read = buffered_read(bf, buf, sizeof(buf));
+    printf("Read %ld bytes\n", bytes_read);
 
-    // Flush the buffer
-    if (buffered_flush(bf) == -1) {
-        perror("buffered_flush");
-        return 1;
-    }
-
-    // Write to the file
-    const char *msg3 = "Now this has to be first \n\n";
-    bytes_written = buffered_write(bf, msg3, strlen(msg3));
-    if (bytes_written == -1) {
-        perror("buffered_write");
-        return 1;
-    }
+    printf("The read content is:\n\n %s\n", buf);
 
     buffered_close(bf);
     

@@ -117,6 +117,8 @@ int buffered_flush(buffered_file_t *bf){
             return -1;
         }
     } else {
+        // Write the contents of the write buffer to the end of the file
+        lseek(bf->fd, 0, SEEK_END);
         ssize_t bytes_written = write(bf->fd, bf->write_buffer, bf->write_buffer_pos);
         if (bytes_written == -1) {
             perror("buffered_flush: write");
@@ -134,7 +136,7 @@ int buffered_flush(buffered_file_t *bf){
     return 0;
 }
 
-// Function to write to the buffered file
+// Function to write to the buffered file ****************************************************************************
 ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count){
     if (bf->write_buffer_pos + count > bf->write_buffer_size) {
             // Flush the buffer before writing
@@ -158,28 +160,54 @@ ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count){
     return count;
 }
 
-// Function to read from the buffered file
+// Function to read from the buffered file ****************************************************************************
 ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count){
-    // If the read buffer is empty, read more data from the file
+    // This flush operation ensures that the buffer's contents are correctly written to the file before any read occurs.
+    buffered_flush(bf);
+
+    size_t original_count = count;
+    size_t bytes_read = 0;
+    // If the read buffer is empty, fill the buffer with data from the file
     if (bf->read_buffer_pos == 0) {
-        ssize_t bytes_read = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
+        bytes_read = read(bf->fd, bf->read_buffer, bf->read_buffer_size);
         if (bytes_read == -1) {
             perror("buffered_read: read");
             return -1;
         }
-        bf->read_buffer_pos = bytes_read;
     }
 
-    // Calculate how many bytes to read from the buffer
-    size_t bytes_to_read = count < bf->read_buffer_pos ? count : bf->read_buffer_pos;
-    memcpy(buf, bf->read_buffer, bytes_to_read);
-    bf->read_buffer_pos -= bytes_to_read;
 
-    return bytes_to_read;
+    // If the user wants to read more data than the buffer can hold, read fro the buffer to the end
+    // and then fill the buffer with new data from the file and continue reading
+
+    while (bf->read_buffer_pos + count > bf->read_buffer_size) {
+        // Read the remaining data from the buffer
+        size_t bytes_to_read = bf->read_buffer_size - bf->read_buffer_pos;
+        memcpy(buf, bf->read_buffer + bf->read_buffer_pos, bytes_to_read);
+        bf->read_buffer_pos = 0;
+
+        // Update the buffer pointer and count
+        buf += bytes_to_read;
+        count -= bytes_to_read;
+
+        // fill the read buffer with new data from the file
+        bytes_read += read(bf->fd, bf->read_buffer, bf->read_buffer_size);
+        if (bytes_read == -1) {
+            perror("buffered_read: read");
+            return -1;
+        }
+    }
+
+    // Read the remaining data from the buffer
+    memcpy(buf, bf->read_buffer + bf->read_buffer_pos, count);
+    bf->read_buffer_pos += bytes_read;
+    bf->read_buffer_pos = (bf->read_buffer_pos) % bf->read_buffer_size;
+
+    return bytes_read;
 }
 
 
-// Function to close the buffered file
+// Function to close the buffered file ********************************************************************************
 int buffered_close(buffered_file_t *bf){
     // Flush the buffer before closing the file
     if (buffered_flush(bf) == -1) {
