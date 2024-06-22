@@ -38,7 +38,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count);
 int buffered_flush(buffered_file_t *bf);
 int buffered_close(buffered_file_t *bf);
 
-// Function to wrap the original open function
+// Function to wrap the original open function ************************************************************************88
 buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
 
     int normal_flags = flags & ~O_PREAPPEND;
@@ -80,7 +80,7 @@ buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
     return bf;
 }
 
-// Function to flush the buffer to the file
+// Function to flush the buffer to the file **************************************************************************
 int buffered_flush(buffered_file_t *bf){
     // Write the contents of the write buffer to the file
     if (bf->preappend && bf->write_buffer_pos > 0) {
@@ -122,6 +122,9 @@ int buffered_flush(buffered_file_t *bf){
             perror("buffered_flush: write");
             return -1;
         }
+
+        // Reset the write buffer position
+        bf->write_buffer_pos = 0;
     }
         
 
