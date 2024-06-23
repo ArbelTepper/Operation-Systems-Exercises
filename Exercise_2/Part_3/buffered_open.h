@@ -117,8 +117,6 @@ int buffered_flush(buffered_file_t *bf){
             return -1;
         }
     } else {
-        // Write the contents of the write buffer to the end of the file
-        lseek(bf->fd, 0, SEEK_END);
         ssize_t bytes_written = write(bf->fd, bf->write_buffer, bf->write_buffer_pos);
         if (bytes_written == -1) {
             perror("buffered_flush: write");
@@ -128,8 +126,6 @@ int buffered_flush(buffered_file_t *bf){
         // Reset the write buffer position
         bf->write_buffer_pos = 0;
     }
-        
-
     // Reset the write buffer position
     bf->write_buffer_pos = 0;
 
@@ -162,10 +158,10 @@ ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count){
 
 // Function to read from the buffered file ****************************************************************************
 ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count){
+
     // This flush operation ensures that the buffer's contents are correctly written to the file before any read occurs.
     buffered_flush(bf);
 
-    size_t original_count = count;
     size_t bytes_read = 0;
     // If the read buffer is empty, fill the buffer with data from the file
     if (bf->read_buffer_pos == 0) {
@@ -176,8 +172,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count){
         }
     }
 
-
-    // If the user wants to read more data than the buffer can hold, read fro the buffer to the end
+    // If the user wants to read more data than the buffer can hold, read from the buffer to the end
     // and then fill the buffer with new data from the file and continue reading
 
     while (bf->read_buffer_pos + count > bf->read_buffer_size) {
@@ -200,7 +195,7 @@ ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count){
 
     // Read the remaining data from the buffer
     memcpy(buf, bf->read_buffer + bf->read_buffer_pos, count);
-    bf->read_buffer_pos += bytes_read;
+    bf->read_buffer_pos += count;
     bf->read_buffer_pos = (bf->read_buffer_pos) % bf->read_buffer_size;
 
     return bytes_read;
