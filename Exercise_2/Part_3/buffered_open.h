@@ -33,9 +33,9 @@ typedef struct {
 
 buffered_file_t *buffered_open(const char *pathname, int flags, ...);
 
-ssize_t buffered_write(buffered_file_t *bf, const void *buf, size_t count);
+ssize_t buffered_write(buffered_file_t *bf, const char *buf, size_t count);
 
-ssize_t buffered_read(buffered_file_t *bf, void *buf, size_t count);
+ssize_t buffered_read(buffered_file_t *bf, char *buf, size_t count);
 
 int buffered_flush(buffered_file_t *bf);
 
