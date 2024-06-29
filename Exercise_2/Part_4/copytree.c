@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <string.h>
+#include <errno.h>
 
 #define PATH_MAX 4096
 
@@ -39,6 +40,25 @@ int copy_contents(const char *src, const char *dest) {
     // Close the source and destination files
     close(src_fd);
     close(dest_fd);  
+}
+
+// Function to create directories recursively
+int create_directories(const char *path) {
+    char temp[PATH_MAX];
+    snprintf(temp, sizeof(temp), "%s", path);
+    for (char *p = temp + 1; *p; p++) {
+        if (*p == '/') {
+            *p = '\0';
+            if (mkdir(temp, S_IRWXU) != 0 && errno != EEXIST) {
+                return -1;
+            }
+            *p = '/';
+        }
+    }
+    if (mkdir(temp, S_IRWXU) != 0 && errno != EEXIST) {
+        return -1;
+    }
+    return 0;
 }
 
 void copy_file(const char *src, const char *dest, int copy_symlinks, int copy_permissions) {
@@ -88,6 +108,13 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
         perror("opendir");
         return;
     }
+    // Create the destination directory if it doesn't exist (for the subdirectories)
+    if (create_directories(dest) == -1) {
+        perror("create_directories");
+        closedir(dir);
+        return;
+    }
+
     while ((entry = readdir(dir)) != NULL) {
         // Ignore "." and ".." directories
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
@@ -96,8 +123,10 @@ void copy_directory(const char *src, const char *dest, int copy_symlinks, int co
         // Construct the source and destination paths for the current entry
         char src_path[PATH_MAX];
         char dest_path[PATH_MAX];
+
         snprintf(src_path, sizeof(src_path), "%s/%s", src, entry->d_name);
         snprintf(dest_path, sizeof(dest_path), "%s/%s", dest, entry->d_name);
+
         // Check if the current entry is a directory
         if (entry->d_type == DT_DIR) {
             // Recursively copy the directory
