@@ -3,12 +3,15 @@
 #include <vector>
 #include <string>
 #include <thread>
+#include <memory>
 #include "Producer.h"
 #include "BoundedBuffer.h"
 #include "Dispatcher.h"
 #include "CoEditor.h"
 #include "ScreenManager.h"
+//#include "UnboundedBuffer.h"
 
+using namespace std;
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {
@@ -25,7 +28,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string line;
+    string line;
     while (getline(file, line)) {
         if (line.find("PRODUCER") != std::string::npos) {
             // Read number of products
@@ -43,18 +46,19 @@ int main(int argc, char* argv[]) {
 
     file.close();
 
-    std::vector<Producer> producers; // Array to store producers
-    std::vector<BoundedBuffer<std::string>> buffers; // Array to store buffers
+    //std::vector<BoundedBuffer<std::string>> buffers;
+    vector<shared_ptr<BoundedBuffer<string>>> buffers;
+    vector<shared_ptr<Producer>> producers;
 
-    for (size_t i = 0; i < productsCount.size(); i++) {
+    for (size_t i = 0; i < productsCount.size(); ++i) {
         int numProducts = productsCount[i];
-        int queueSize = queueSizes[i];
+        size_t queueSize = queueSizes[i];
 
         // Create a bounded buffer and store it in the buffers array
-        buffers.emplace_back(queueSize);
+        buffers.push_back(make_shared<BoundedBuffer<std::string>>(queueSize));
 
         // Create a producer object using the numProducts and the last buffer created
-        producers.emplace_back(i, buffers.back(), numProducts);
+        producers.push_back(make_shared<Producer>(i , buffers.back(), numProducts));
     }
 
     // Create unbounded buffers for sports and weather
@@ -79,7 +83,7 @@ int main(int argc, char* argv[]) {
     // Create threads for each producer
     std::vector<std::thread> producerThreads;
     for (auto& producer : producers) {
-        producerThreads.emplace_back([&producer] { producer.produce(); });
+        producerThreads.emplace_back([&producer] { producer->produce(); });
     }
     
     // Create a thread for the dispatcher.

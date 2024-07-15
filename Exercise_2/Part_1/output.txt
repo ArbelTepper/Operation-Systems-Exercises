@@ -1,6 +1,9 @@
-child1_msg
-child1_msg
-child2_msg
-child2_msg
-parent_msg
-parent_msg
+Child1 message
+Child1 message
+Child1 message
+Child2 message
+Child2 message
+Child2 message
+Parent message
+Parent message
+Parent message

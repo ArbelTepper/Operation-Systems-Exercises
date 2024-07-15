@@ -3,14 +3,14 @@
 
 #include <mutex>
 #include <queue>
-#include <string>
 #include <semaphore>
+#include <string>
 
 template<typename T>
 class BoundedBuffer {
 private:
-    std::counting_semaphore<size_t> emptySlots; // Semaphore to track empty slots
-    std::counting_semaphore<size_t> filledSlots; // Semaphore to track filled slots
+    std::counting_semaphore<> emptySlots; // Semaphore to track empty slots
+    std::counting_semaphore<> filledSlots; // Semaphore to track filled slots
     std::mutex mtx; // Mutex for mutual exclusion
     std::queue<T> queue; // Queue to store the elements
     size_t size; // Size of the bounded buffer
@@ -24,8 +24,5 @@ public:
 
     bool isEmpty();
 };
-
-// Include the template function definitions
-#include "BoundedBuffer.cpp"
 
 #endif // BOUNDEDBUFFER_H

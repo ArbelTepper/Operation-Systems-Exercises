@@ -1,22 +1,12 @@
+#include "Producer.h"
 #include <iostream>
 #include <string>
 #include <random>
-#include "BoundedBuffer.h"
 
-class Producer {
-private:
-    BoundedBuffer<std::string>& buffer; // Reference to a single shared buffer
-    int producerID;
-    int producedCount = 0; // Tracks the number of items this producer has produced
-    int itemsToProduce; // Number of items to produce, added as per requirement
-    int sportCounter = 0;
-    int newsCounter = 0;
-    int weatherCounter = 0;
+Producer::Producer(int id, shared_ptr<BoundedBuffer<std::string>> buffer, int numItems)
+    : producerID(id), buffer(buffer), producedCount(0), itemsToProduce(numItems), sportCounter(0), newsCounter(0), weatherCounter(0) {}
 
-public:
-    Producer(int id, BoundedBuffer<std::string>& buffer, int numItems) : producerID(id), buffer(buffer), itemsToProduce(numItems) {}
-
-void produce() {
+void Producer::produce() {
     std::random_device rd; // Obtain a random number from hardware
     std::mt19937 gen(rd()); // Seed the generator
     std::uniform_int_distribution<> distr(0, 2); // Define the range
@@ -41,9 +31,8 @@ void produce() {
                 break;
         }
 
-        buffer.insert(message);
+        buffer->insert(message);
     }
     // Insert "DONE" after producing the specified number of items
-    buffer.insert("DONE");
+    buffer->insert("DONE");
 }
-};

@@ -1,6 +1,6 @@
 #include "buffered_open.h"
 
-// Function to wrap the original open function ************************************************************************88
+// Function to wrap the original open function ************************************************************************
 buffered_file_t *buffered_open(const char *pathname, int flags, ...) {
 
     int normal_flags = flags & ~O_PREAPPEND;

@@ -6,13 +6,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Idea to create a really random printing for each son without shuffeling the messages array:
-// 1. Create the messages array
-// 2. Create a binary array of the same size as the messages array
-// 3. Fill the binary array with 0s
-// 4. Each son will generate a random number between 0 and the number of messages
-// 5. If the binary array at the index of the random number is 0, 
-//      print the message and set the binary array at that index to 1
 
 void write_message(const char *message, int count) {
     for (int i = 0; i < count; i++) {

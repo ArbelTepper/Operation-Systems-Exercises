@@ -2,28 +2,28 @@
 #include <queue>
 #include <string>
 #include <stdexcept>
+#include "UnboundedBuffer.h"
+using namespace std;
+
+template <typename T>
+UnboundedBuffer<T>::UnboundedBuffer()
+{
+}
+
+template <typename T>
+void UnboundedBuffer<T>::insert(const T &item)
+{
+	std::lock_guard<std::mutex> lock(mtx);
+    queue.push(item);
+}
 
 template<typename T>
-class UnboundedBuffer {
-private:
-    std::mutex mtx;
-    std::queue<std::string> queue;
-
-public:
-    UnboundedBuffer() {}
-
-    void insert(const std::string item) {
-        std::lock_guard lock(mtx);
-        queue.push(item);
+T UnboundedBuffer<T>::remove() {
+    std::lock_guard<std::mutex> lock(mtx);
+    if (queue.empty()) {
+        throw std::runtime_error("Attempt to remove from an empty buffer");
     }
-
-    std::string remove() {
-        std::lock_guard lock(mtx);
-        if (queue.empty()) {
-            throw std::runtime_error("Attempt to remove from an empty buffer");
-        }
-        std::string item = queue.front();
-        queue.pop();
-        return item;
-    }
-};
+    T item = queue.front();
+    queue.pop();
+    return item;
+}
