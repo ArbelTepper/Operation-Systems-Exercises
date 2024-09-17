@@ -7,7 +7,7 @@
 #include <semaphore>
 #include <random>
 #include <mutex>
-#include <memory> // Include this header for std::unique_ptr and std::make_unique
+#include <memory>
 
 using namespace std;
 
@@ -53,26 +53,27 @@ public:
 
 class UnBoundedBuffer {
 private:
+    bool finished = false;
     queue<string> buffer;
     mutex mtx;
-    bool finished = false;
+    
 
 public:
     UnBoundedBuffer() {}
 
+    string remove() {
+            string s = "";
+            if (!buffer.empty()) {
+                lock_guard lock(mtx);
+                s = buffer.front();
+                buffer.pop();
+            }
+            return s;
+        }
+
     void insert(string s) {
         lock_guard lock(mtx);
         buffer.push(s);
-    }
-
-    string remove() {
-        string s = "";
-        if (!buffer.empty()) {
-            lock_guard lock(mtx);
-            s = buffer.front();
-            buffer.pop();
-        }
-        return s;
     }
 };
 
@@ -113,7 +114,7 @@ public:
                     message = "producer " + std::to_string(producerID) + " " + topic + " item " + std::to_string(++weatherCounter);
                     break;
             }
-			cout << message << endl;
+			//cout << message << endl;
             buffer.insert(message);
         }
         // Insert "DONE" after producing the specified number of items
@@ -143,12 +144,11 @@ public:
                 if (message == "DONE") {
                     continue;
                 }
-                string topic = message.substr(message.find(" ") + 1, message.find(" ", message.find(" ") + 1) - message.find(" ") - 1);
-                if (topic == "SPORT") {
+                if (message.find("SPORT") != std::string::npos) {
                     sportsBuffer.insert(message);
-                } else if (topic == "NEWS") {
+                } else if (message.find("NEWS") != std::string::npos) {
                     newsBuffer.insert(message);
-                } else if (topic == "WEATHER") {
+                } else if (message.find("WEATHER") != std::string::npos) {
                     weatherBuffer.insert(message);
                 }
                 finished = false;
@@ -188,6 +188,7 @@ private:
 
 public:
     ScreenManager(UnBoundedBuffer& buffer) : screenBuffer(buffer) {}
+
     void printMessages() {
         while (finishedCount < 3) {
             string message = screenBuffer.remove();
